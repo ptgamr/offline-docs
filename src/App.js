@@ -33,7 +33,7 @@ class App extends Component {
     this.state = {
       isReady: false,
       isSupported: true,
-      downloadLink: 'http://static.videogular.com/assets/videos/videogular.mp4',
+      downloadLink: 'https://raw.githubusercontent.com/mediaelement/mediaelement-files/master/big_buck_bunny.mp4',
       playableUrl: '',
       files: []
     }
@@ -123,7 +123,7 @@ class App extends Component {
           <input type="file" onChange={e => this.handleFileSelection(e.target.files)} />
         </div>
 
-        <h3>Or download it</h3>
+        <h3>Or download it (you can play the video after download it)</h3>
         <input type="text" placeholder="Enter downloadable URL..." value={this.state.downloadLink} onChange={this.handleDownloadLinkChange} />
         <button onClick={this.handleDownload}>Download</button>
 
