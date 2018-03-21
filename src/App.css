@@ -42,6 +42,20 @@ th {
     color: white;
 }
 
+.App input[type="text"] {
+  padding: 5px;
+  width: 30%;
+}
+
+.App button {
+  padding: 5px;
+  margin-left: 5px;
+}
+
+.App video {
+  width: 50%;
+}
+
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
