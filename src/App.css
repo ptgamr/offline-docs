@@ -60,3 +60,35 @@ th {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.image-wrapper {
+  width: 300px;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.image-wrapper img {
+  width: 100%;
+}
+
+.file-input {
+  margin-top: 15px;
+}
+
+#input-photo {
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+#input-photo + label {
+  font-size: 1.3em;
+  background: #987fff;
+  color: #fff;
+  border-radius: 5px;
+  display: inline-block;
+  cursor: pointer;
+  padding: 10px 15px;
+}

@@ -35,6 +35,7 @@ class App extends Component {
       isSupported: true,
       downloadLink: 'https://raw.githubusercontent.com/mediaelement/mediaelement-files/master/big_buck_bunny.mp4',
       playableUrl: '',
+      viewableImg: '',
       files: []
     }
 
@@ -63,9 +64,21 @@ class App extends Component {
   }
 
   handleFileSelection(files) {
-    dbInstance.storeFiles(files)
+    const file = files[0]
+
+    dbInstance.storeFiles([{
+      name: file.name,
+      blob: file,
+      lastModifiedDate: Date.now(),
+      size: file.size,
+    }])
       .then(() => {
         console.log('stored file success')
+        if (file.type.indexOf('image/') > -1) {
+          this.viewImage({
+            blob: file
+          });
+        }
         this.getFileList()
       })
       .catch(e => {
@@ -95,18 +108,26 @@ class App extends Component {
   }
 
   play(file) {
-    console.log(file.blob)
     const URL = window.URL || window.webkitURL;
     const playableUrl = URL.createObjectURL(file.blob);
-    this.setState({playableUrl})
+    this.setState({playableUrl, viewImage: ''})
 
     this.videoElement.src = playableUrl
     this.videoElement.load()
     this.videoElement.onloadeddata = () => this.videoElement.play()
   }
 
+  viewImage(file) {
+    const URL = window.URL || window.webkitURL;
+    const viewableImage = URL.createObjectURL(file.blob);
+    this.setState({viewableImage, playableUrl: ''})
+
+    this.imageElement.src = viewableImage
+  }
+
   render() {
     const {isSupported, files} = this.state
+    console.log(files)
     return (
       <div className="App">
         <header className="App-header">
@@ -131,6 +152,14 @@ class App extends Component {
           <video ref={video => this.videoElement = video} controls />
         </div>
 
+        <div className="file-input">
+          <input type="file" id="input-photo" accept="image/*" onChange={e => this.handleFileSelection(e.target.files)} />
+          <label htmlFor="input-photo">Choose or take a photo</label>
+        </div>
+        <div className="image-wrapper" style={{marginTop: 10, display: this.state.viewableImage ? 'block' : 'none'}}>
+          <img ref={img => this.imageElement = img} />
+        </div>
+
         <h3>Files stored in IndexDB:</h3>
         <table>
           <thead>
@@ -147,7 +176,10 @@ class App extends Component {
                 <td>{file.name}</td>
                 <td>{file.lastModifiedDate && file.lastModifiedDate.toString()}</td>
                 <td>{file.size} bytes</td>
-                <td>{file.name.indexOf('.mp4') > -1 && <button onClick={() => this.play(file)}>Play</button>}</td>
+                <td>
+                  {file.name.indexOf('.mp4') > -1 && <button onClick={() => this.play(file)}>Play</button>}
+                  {(file.name.indexOf('.png') > -1 || file.name.indexOf('.jpg') > -1) && <button onClick={() => this.viewImage(file)}>View</button>}
+                </td>
               </tr>
             ))}
           </tbody>

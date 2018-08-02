@@ -244,6 +244,8 @@ export default class DB {
 
             if (cursor) {
               this.empty = false; // If we're here, there's at least one object in the database's object store (i.e., the database is not empty).
+
+              console.log(cursor);
               files.push({
                 name: cursor.value.name,
                 lastModifiedDate: cursor.value.lastModifiedDate,
