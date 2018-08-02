@@ -250,7 +250,8 @@ export default class DB {
                 name: cursor.value.name,
                 lastModifiedDate: cursor.value.lastModifiedDate,
                 size: cursor.value.size,
-                blob: cursor.value.blob,
+                type: cursor.value.type,
+                buffer: cursor.value.buffer,
               })
               cursor.continue(); // Move to the next object (that is, file) in the object store.
             } else {

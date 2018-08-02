@@ -27,6 +27,21 @@ const download = (url, onProgress) =>
     req.send();
   });
 
+function arrayBufferToBlob(buffer, type) {
+  return new Blob([buffer], {type: type});
+}
+
+function blobToArrayBuffer(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener('loadend', (e) => {
+      resolve(reader.result);
+    });
+    reader.addEventListener('error', reject);
+    reader.readAsArrayBuffer(blob);
+  });
+}
+
 class App extends Component {
   constructor(props) {
     super(props)
@@ -66,25 +81,32 @@ class App extends Component {
   handleFileSelection(files) {
     const file = files[0]
 
-    dbInstance.storeFiles([{
-      name: file.name,
-      blob: file,
-      lastModifiedDate: Date.now(),
-      size: file.size,
-    }])
-      .then(() => {
-        console.log('stored file success')
-        if (file.type.indexOf('image/') > -1) {
-          this.viewImage({
-            blob: file
-          });
-        }
-        this.getFileList()
-      })
-      .catch(e => {
-        console.log('stored file error')
-        console.log(e)
-      })
+    const reader = new FileReader()
+
+    reader.onload = e => {
+      const buffer = e.target.result
+      const record = {
+        name: file.name,
+        buffer,
+        type: file.type,
+        lastModifiedDate: Date.now(),
+        size: file.size,
+      }
+
+      dbInstance.storeFiles([record])
+        .then(() => {
+          if (file.type.indexOf('image/') > -1) {
+            this.viewImage(record);
+          }
+          this.getFileList()
+        })
+        .catch(e => {
+          console.log('stored file error')
+          console.log(e)
+        })
+    }
+
+    reader.readAsArrayBuffer(file)
   }
 
   handleDownloadLinkChange(evt) {
@@ -96,20 +118,24 @@ class App extends Component {
 
     download(downloadLink)
       .then((blob) => {
-        dbInstance.storeFiles([{
-          name: downloadLink,
-          blob,
-          lastModifiedDate: Date.now(),
-          size: blob.size
-        }]).then(() => {
-          this.getFileList()
+        blobToArrayBuffer(blob).then(buffer => {
+          dbInstance.storeFiles([{
+            name: downloadLink,
+            buffer,
+            type: 'video/mp4',
+            lastModifiedDate: Date.now(),
+            size: blob.size
+          }]).then(() => {
+            this.getFileList()
+          })
         })
       })
   }
 
-  play(file) {
+  play({buffer, type}) {
+    const blob = arrayBufferToBlob(buffer, type)
     const URL = window.URL || window.webkitURL;
-    const playableUrl = URL.createObjectURL(file.blob);
+    const playableUrl = URL.createObjectURL(blob);
     this.setState({playableUrl, viewImage: ''})
 
     this.videoElement.src = playableUrl
@@ -117,9 +143,10 @@ class App extends Component {
     this.videoElement.onloadeddata = () => this.videoElement.play()
   }
 
-  viewImage(file) {
+  viewImage({buffer, type}) {
+    const blob = arrayBufferToBlob(buffer, type)
     const URL = window.URL || window.webkitURL;
-    const viewableImage = URL.createObjectURL(file.blob);
+    const viewableImage = URL.createObjectURL(blob);
     this.setState({viewableImage, playableUrl: ''})
 
     this.imageElement.src = viewableImage
