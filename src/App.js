@@ -191,22 +191,22 @@ class App extends Component {
         <table>
           <thead>
             <tr>
+              <th></th>
               <th>Filename</th>
               <th>Last Modified Date</th>
               <th>Size (bytes)</th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
             {files.map((file, i) => (
               <tr key={i}>
-                <td>{file.name}</td>
-                <td>{file.lastModifiedDate && file.lastModifiedDate.toString()}</td>
-                <td>{file.size} bytes</td>
                 <td>
                   {file.name.indexOf('.mp4') > -1 && <button onClick={() => this.play(file)}>Play</button>}
                   {(file.name.indexOf('.png') > -1 || file.name.indexOf('.jpg') > -1) && <button onClick={() => this.viewImage(file)}>View</button>}
                 </td>
+                <td>{file.name}</td>
+                <td>{file.lastModifiedDate && file.lastModifiedDate.toString()}</td>
+                <td>{file.size} bytes</td>
               </tr>
             ))}
           </tbody>
